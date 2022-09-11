@@ -6,25 +6,25 @@ public class Command {
 		{"1."          ,"探す "    },
 		{"2."          ,"使う "    },
 		{"3."          ,"買い物 "  },
-		{"4."          ,"宿屋 ｝"}
+		{"4."          ,"宿屋 "}
 	};
-	
-	
-	
+
+
+
 	public static void command( ) {
 		System.out.println( "               ／           ＼" );
 		for( String[ ] menus : menuList ){
-			for( String menu : menus ){	
+			for( String menu : menus ){
 			System.out.print(menu);
 			}
 		}
 		System.out.println( "" );
 		System.out.println( "           ／                   ＼" );
-		
+
 	}
-	
+
 	/*public static void  menu( int clickMenu ) {
-		
+
 		System.out.println( clickMenu );
 	}*/
 
