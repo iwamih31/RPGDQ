@@ -3,7 +3,6 @@ package iwamih31.RPGwin;
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -98,6 +97,8 @@ public class Battle extends AbstractTableModel{
 
 	private int around;
 
+	private int monsNum;
+
 	private static int actor;
 
 	private static int fMode = 0;
@@ -116,7 +117,9 @@ public class Battle extends AbstractTableModel{
 
 	Battle() {
 
-		mons = new Monster[ 4 ];
+		monsNum = 4;
+
+		mons = new Monster[ monsNum ];
 
 		par = Main.getParty ( );
 		pHp = 1;
@@ -132,10 +135,14 @@ public class Battle extends AbstractTableModel{
 
 	public void battle() {									/////敵の出現
 
+		System.out.println("");////////////////////////////////////////////////
+		System.out.println("battle() します");/////////////////////////////////
+		System.out.println("");////////////////////////////////////////////////
+
 		fMode = 1;
 		item = 0;
 
-		for( int i = 0 ; i < 4 ; i++ ) {
+		for( int i = 0 ; i < monsNum ; i++ ) {
 			int r = new java.util.Random ( ).nextInt( 10 ) + 1;
 			switch ( r ) {
 				case 1:
@@ -289,7 +296,7 @@ public class Battle extends AbstractTableModel{
 
 			turn = new ArrayList<Integer>();
 
-			for (int i = 30; i > 0; i--) { 
+			for (int i = 30; i > 0; i--) {
 				gM = null;
 				if (p1s + pfs + mHug == i && p1h > 0) {
 					turn.add(0);
@@ -752,24 +759,24 @@ public class Battle extends AbstractTableModel{
 					battleText[0] = par[p].getName() + "の攻撃が命中!!!";
 
 					double bp = ((new java.util.Random().nextInt(7)) * 0.1) + 0.7;
-					
+
 					int dm = (int) ((par[p].attack() * bp) * k  * fly);////ダメージ
-					
+
 					///////////クリティカルヒット判定/////////////
 					int cH = (new java.util.Random().nextInt(20 - par[p].getLev()));
-					
+
 					if (p == 0 && par[0].getWp() == 9) {///////////////////ムラマサ装備の場合
 						dm = dm + 100;
 					}
-					
+
 					if (p == 1 && par[1].getWp() == 9) {///////////////////英雄の剣装備の場合
 						cH = 3 - (new java.util.Random().nextInt(2));
 					}
-					
+
 					if (cH == 0){//////////////////////////クリティカルヒットの場合
 						dm = dm * 3;
 					}
-					
+
 					// System.out.println("par[p].attack("+ par[p].attack()
 					// + ") * pb(" + bp + ") * k(" + k +") * fly(" + fly +
 					// "=dm<" + dm);//////////
@@ -854,23 +861,23 @@ public class Battle extends AbstractTableModel{
 							System.out.println(text2);
 							System.out.println("★★★★★★★★★★★★★★★★★★★★");
 //							Input.ent();
-							
+
 							double bp = ((new java.util.Random().nextInt(7)) * 0.1) + 0.7;
 							int dm = (int) ((mon.attack() * bp) * mK);
-							
+
 							///////////クリティカルヒット判定/////////////
 							int cH = (new java.util.Random().nextInt(par[who].getLev()));
-							
+
 							if (p == 0 && par[0].getWp() == 9) {///////////////////ムラマサ装備の場合
 								dm = dm - (dm / 3);
 							}
-							
+
 							String big = "";
 							if (cH == 0){//////////////////////////クリティカルヒットの場合
 								dm = dm * 3;
 								big = "大";
 							}
-							
+
 							par[who].setHp(par[who].getHp() - dm);
 							pTable();
 
@@ -1194,7 +1201,7 @@ public class Battle extends AbstractTableModel{
 		}
 
 		System.out.println("");/////////////////////////////////////////////////////////////
-		System.out.println("現パーティ人数 = " + mCount);///////////////////////////////////
+		System.out.println("現モンスター数 = " + mCount);///////////////////////////////////
 		System.out.println("");/////////////////////////////////////////////////////////////
 
 		mNa = new String[mCount];

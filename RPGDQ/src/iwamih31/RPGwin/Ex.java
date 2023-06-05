@@ -91,7 +91,7 @@ public class Ex extends AbstractTableModel{
 		System.out.println("");//////////////////////////////////////////
 		System.out.println("job = " + job + " です");////////////////////
 		System.out.println("");//////////////////////////////////////////
-		
+
 		if (job < itemList.length) {
 
 			useEx = itemList[job][1];
@@ -149,12 +149,12 @@ public class Ex extends AbstractTableModel{
 					user.setMp((lev * ep * 3));
 				}
 				user.setHp((hp - 10));
-				if ( user.getHp() <=  1 ) {
+				if ( user.getHp() <  1 ) {
 					user.setHp((0));
 				}
-				System.out.println( name  + "は[ " +(fH - hp) + " HP ]と引き換えに[ "+(mp - fM)+" MP ]回復させた!!!" );
+				System.out.println( name  + "は[ " +(fH - user.getHp()) + " HP ]と引き換えに[ "+(mp - fM)+" MP ]回復させた!!!" );
 
-				exText[1] = ( name  + "は[ " +(fH - hp) + " HP ]と引き換えに[ "+(mp - fM)+" MP ]回復させた!!!" );
+				exText[1] = ( name  + "は[ " +(fH - user.getHp()) + " HP ]と引き換えに[ "+(user.getMp() - fM)+" MP ]回復させた!!!" );
 
 			}
 		}
@@ -307,7 +307,7 @@ public class Ex extends AbstractTableModel{
 			System.out.println("");
 			System.out.println(useEx + "を行うには力が足りません ×××");
 
-			exText = new String[]{useEx + "を行うにはMPが足りません ×××"};
+			exText = new String[]{useEx + "を行うための力が不足しています ×××"};
 	//		Input.ent();
 	//		spell();
 
@@ -322,7 +322,7 @@ private static void whom() {
 		System.out.println("");
 
 		exText = new String[]{useEx + "を、誰に行いますか？"};
-		
+
 		Screen.setMenu(Main.getpNa());
 
 //		int who = Input.input() - 1;
@@ -411,7 +411,7 @@ private static void whom() {
 			{itemList[4][1], "["+itemList[4][3]+"]" }
 		};
 	}
-	
+
 	protected static void arrayClear() {
 
 		if (array == null){
@@ -422,7 +422,7 @@ private static void whom() {
 			}
 		}
 	}
-	
+
 	public static void setExText(ArrayList<String> arrayList) {
 
 		exText = new String[arrayList.size()];

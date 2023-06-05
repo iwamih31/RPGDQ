@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.OverlayLayout;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -67,6 +68,20 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 	private String eventImage;
 	private int imageCode;
 	private String cancel;
+	private MapPiece[][] mapData;
+	private JLabel[][] drawMap;
+	private JPanel mapPanel;
+	private JPanel centerPanel;
+	private ImageIcon centerIcon;
+	private JLabel centerLabel;
+	private boolean isKeyPresse;
+	private JButton button_Ent;
+	private JButton[] menuButton;
+	private JButton cancelButton;
+	private int menuNum;
+	private static int x;
+	private static int y;
+	private static int[][] originalMap;
 	private static int w;
 	private static int h;
 	private static int fontSize;
@@ -105,11 +120,20 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		 * e) { e.printStackTrace(); }
 		 */
 
+//		//キー入力の有効化
+//		addKeyListener(this);
+//		setFocusable(true);
+
 		menu(mList);
 	}
 
 	public Screen(String s) {
 		super(s);
+
+//		//キー入力の有効化
+//		addKeyListener(this);
+//		setFocusable(true);
+
 		start(s);
 	}
 
@@ -262,7 +286,6 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		frame.setLayout(new FlowLayout());
 
 
-
 		changePanelSet = new JPanel();
 		format(changePanelSet);
 		cardLayout = new CardLayout();
@@ -280,14 +303,27 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 		frame.setVisible(true);
 
-
 	}
 
 	private static void change(String mode) {
 
 		cardLayout.removeLayoutComponent(panelSet);
-		changePanelSet.add(panelSet, "通常");
+		changePanelSet.add(panelSet, mode);
 		cardLayout.show(changePanelSet,mode);
+
+//		frame.setFocusable(false);
+//
+////			Robot の delay() で間を空ける
+//		Robot robot = null;
+//		try {
+//			robot = new Robot();
+//		} catch (AWTException e1) {
+//			e1.printStackTrace();
+//		}
+//		System.out.println("");//////////////////////////////////////////
+//		System.out.println("robot.delay(20)します");/////////////////////
+//		System.out.println("");//////////////////////////////////////////
+//		robot.delay(20);
 	}
 
 	private static void change() {
@@ -296,7 +332,36 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		change("通常");
 	}
 
+	private static void changeMap() {
+
+		panelSet_M();
+		change("通常");
+	}
+
 	private static JPanel panelSet() {
+
+		JPanel panelSetC = new JPanel();
+		format(panelSetC);
+		panelSetC.setPreferredSize(new Dimension(w*70, h*80));
+		panelSetC.setLayout(new BoxLayout(panelSetC, BoxLayout.Y_AXIS));
+		panelSetC.add(panelN);
+		panelSetC.add(panelC);
+		panelSetC.add(panelS);
+
+		panelSet = new JPanel();
+		format(panelSet);
+		panelSet.setLayout(new FlowLayout());
+		panelSet.add(panelW);
+		panelSet.add(b());
+		panelSet.add(panelSetC);
+		panelSet.add(b());
+		panelSet.add(panelE);
+
+		return panelSet;
+
+	}
+
+	private static JPanel panelSet_M() {
 
 		JPanel panelSetC = new JPanel();
 		format(panelSetC);
@@ -471,37 +536,43 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		format(panel);
 		panel.setLayout(new GridLayout(5, 0, 0, 0));
 //			panel.setBorder(border);
-		panel.setPreferredSize(new Dimension(w*10, h*50));
+		panel.setPreferredSize(new Dimension(w * 10, h * 50));
 
-		JButton[] button = new JButton[mList.length];// /////////////////ボタンの数
+		menuButton = new JButton[mList.length];// /////////////////ボタンの数
 
 		for (int i = 0; i < (mList.length); i++) {
 			String bN =  String.valueOf(mList[i]);
-			button[i] = new JButton(bN);
-			format(button[i], 50, 50);
-			button[i].setMargin(new Insets(20, 10, 20, 10));///////文字周りの幅
-			button[i].setFocusPainted(false);
-			button[i].addActionListener(this);
-			button[i].addKeyListener(this);
-			button[i].setBorder(border());
-			panel.add(button[i]);
+			menuButton[i] = new JButton(bN);
+			format(menuButton[i], 50, 50);
+			menuButton[i].setMargin(new Insets(20, 10, 20, 10));///////文字周りの幅
+			menuButton[i].setFocusPainted(false);
+			menuButton[i].addActionListener(this);
+			menuButton[i].addKeyListener(this);
+			menuButton[i].setBorder(border());
+			panel.add(menuButton[i]);
 		}
 
 		String bN =  cancel;
-		JButton jButton = new JButton(bN);
-		format(jButton);
-		jButton.setMargin(new Insets(20, 10, 20, 10));///////文字周りの幅
-		jButton.setFocusPainted(false);
-		jButton.addActionListener(this);
-		jButton.addKeyListener(this);
-		jButton.setBorder(border());
-		jButton.setPreferredSize(new Dimension(w*10, h*13));
+		cancelButton = new JButton(bN);
+		format(cancelButton);
+		cancelButton.setMargin(new Insets(20, 10, 20, 10));///////文字周りの幅
+		cancelButton.setFocusPainted(false);
+		cancelButton.addActionListener(this);
+		cancelButton.addKeyListener(this);
+		cancelButton.setBorder(border());
+		cancelButton.setPreferredSize(new Dimension(w*10, h*13));
 //			panel.add(jButton);
 
-		JPanel bPanel = panelSetNCS(panel, menuAreaB,jButton);
+		JPanel bPanel = panelSetNCS(panel, menuAreaB,cancelButton);
 		bPanel.setPreferredSize(new Dimension(w*10, h*80));
 
+		bPanel.setFocusable(true);
+
 		panelE = panelSetWCE(null, bPanel, null);
+
+		menuNum = 0;
+
+		selectStyle();
 
 	}
 
@@ -509,9 +580,11 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 		String select = e.getActionCommand();
 
-		if(select.equals(buttonName)){
+		if(select.equals(buttonName)){ // 同じボタン名がクリックされたら
+			// クリックしたボタン名はent
 			buttonName = ent;
-		}else{
+		}else{	// それ以外がクリックされたら
+			// クリックしたボタン名はそのまま使用
 			buttonName = select;
 		}
 
@@ -520,7 +593,57 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		System.out.println("buttonName = " + buttonName);// //////////////////////////
 		System.out.println("");// ////////////////////////////////////////
 
+		actionPerformedSwitch();
+
+	}
+
+	public void actionPerformedSwitch() {
+
+		System.out.println("");// ////////////////////////////////////////
+		System.out.println("mode = " + mode);// //////////////////////////
+		System.out.println("");// ////////////////////////////////////////
+
+		System.out.println("");// ////////////////////////////////////////
+		System.out.println("buttonName = " + buttonName);// //////////////////////////
+		System.out.println("");// ////////////////////////////////////////
+
+		System.out.println("");// ////////////////////////////////////////
+		System.out.println("count = " + count);// //////////////////////////
+		System.out.println("");// ////////////////////////////////////////
+
+		// フォーカスをframeに持ってくる
+		frame.setFocusable(true);
+		System.out.println("");/////////////////////////////////////
+		System.out.println("frameにフォーカスをあてました");////////
+		System.out.println("");/////////////////////////////////////
+
+		//キー入力の有効化
+		frame.addKeyListener(this);
+		System.out.println("");/////////////////////////////////////
+		System.out.println("frameのキー入力を有効化しました");////////
+		System.out.println("");/////////////////////////////////////
+
+
+		actionPerformedSwitch0();
+
+		actionPerformedSwitch1();
+
+		actionPerformedSwitch21();
+
+		actionPerformedSwitch22();
+
+		actionPerformedSwitch3();
+
+		actionPerformedSwitch4();
+
+		actionPerformedSwitch5();
+
+	}
+
+	public void actionPerformedSwitch0() {
+
 		switch (mode) {
+
 			case 0 ://最初
 				if (buttonName.equals(ynList[0])) {
 					begin();
@@ -528,6 +651,8 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 				}
 				if (buttonName.equals(ynList[1])) {
 					load();
+					x = 0;
+					y = 0;
 					toNormal();
 				}else{
 					opening();
@@ -542,7 +667,6 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 				count = 0;
 				whichUse(buttonName);
-
 				break;
 
 			case 3 ://買い物
@@ -565,18 +689,6 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 				break;
 		}
-
-	actionPerformedSwitch1();
-
-	actionPerformedSwitch21();
-
-	actionPerformedSwitch22();
-
-	actionPerformedSwitch3();
-
-	actionPerformedSwitch4();
-
-	actionPerformedSwitch5();
 
 	}
 
@@ -761,51 +873,65 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 	public void actionPerformedSwitch1() {
 
+//		// フォーカスをframeに持ってくる
+//		frame.setFocusable(true);
+//		System.out.println("");/////////////////////////////////////
+//		System.out.println("frameにフォーカスをあてました");////////
+//		System.out.println("");/////////////////////////////////////
+//		//キー入力の有効化
+//		frame.addKeyListener(this);
+
 		switch (mode) {
 
 			case 1 ://探す
 				count = 0;
+
 				fieldAction(buttonName);
 
 				break;
 
 			case 10 ://
-				if (buttonName.equals(ent)) {
+				if (ent.equals(buttonName)) {
 					Main.event();
 					String[] text = Main.getDoText();
-					setMessageEnt(text[count]);
-					count = (count + 1);
+					if(text.length <= count) {
+						toNormal();
+					}else {
+						setMessageEnt(text[count]);
+					}
 					adventure();
+					count = (count + 1);
 				}
 				break;
 
 			case 11 ://良い人
 
-				eventMenu1();
+				eventLoop_Heal();
 
 				break;
 
 			case 12 ://情報
 
-				eventMenu0();
+				eventLoop();
 
 				break;
 
-			case 13 ://無し
+			case 13 ://イベント無し
 
-				eventMenu0();
+				toNormal();
 
 				break;
 
 			case 14 ://戦闘
 
 				setMode(5);
+				adventure();
 
 				break;
 
 			case 15 ://宝箱
 
-				eventMenu0();
+				getItemLoop();
 
 				break;
 
@@ -832,12 +958,15 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 	private void fieldAction(String selectButtonName) {
 
-			System.out.println("");//////////////////////////////////////////
-			System.out.println("fieldAction(" + selectButtonName +") します");////////
-			System.out.println("");//////////////////////////////////////////
+		System.out.println("");//////////////////////////////////////////
+		System.out.println("fieldAction(" + selectButtonName +" ) します");////////
+		System.out.println("");//////////////////////////////////////////
 
-			String[] menu = Command.menu();
+		String[] menu = Command.menu();
+		if (selectButtonName != null) {
 
+
+			// 探す
 			if (selectButtonName.equals(menu[0])) {
 
 				buttonName = null;
@@ -846,15 +975,18 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 				Main.action(1);
 
-	//			setMessageEnt(Main.getText());
+//				setMessageEnt(Main.getText());
 
 				setMessageEnt("―――――" + Main.getName() + "は探検を続けた―――――");
 
 				setMode(10);
 
 				adventure();
+
+				buttonName = ent;
 			}
 
+			// 使う
 			if (selectButtonName.equals(menu[1])) {
 
 				buttonName = null;
@@ -870,6 +1002,7 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 				use();
 			}
 
+			// 買い物
 			if (selectButtonName.equals(menu[2])) {
 
 				buttonName = null;
@@ -883,6 +1016,7 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 				shop();
 			}
 
+			// 宿屋
 			if (selectButtonName.equals(menu[3])) {
 
 				buttonName = null;
@@ -897,12 +1031,13 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 			}
 		}
+	}
 
-	private void eventMenu0() {
+	private void eventLoop() {
 		if (buttonName.equals(ent)) {
 
 			System.out.println("");/////////////////////////////
-			System.out.println("buttonName = " + buttonName);///
+			System.out.println("eventMenu0 count = " + count);///
 			System.out.println("");/////////////////////////////
 
 			String[] text = Main.getDoText();
@@ -927,11 +1062,11 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		}
 	}
 
-	private void eventMenu1() {
+	private void eventLoop_Heal() {
 		if (buttonName.equals(ent)) {
 
 			System.out.println("");/////////////////////////////
-			System.out.println("buttonName = " + buttonName);///
+			System.out.println("eventLoop_Heal count = " + count);///
 			System.out.println("");/////////////////////////////
 
 			String[] text = Main.getDoText();
@@ -2048,10 +2183,10 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 			case 5 ://戦闘
 
-					buttonName = null;
-					menu = Battle.getMenu();
-					Main.battle();
-					count = 0;
+				count = 0;
+//				buttonName = null;
+				menu = Battle.getMenu();
+				Main.battle();
 				break;
 
 			case 50 ://戦闘,メンバー
@@ -2232,6 +2367,13 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		}
 	}
 
+	private void toNormal() {
+		setMode(1);/////////////////////////////////////通常モードへ
+		Main.save();
+		setMessage("どうしますか?");
+		field();
+	}
+
 	private void battle() {
 
 		System.out.println("");//////////////////////////////////////////
@@ -2252,7 +2394,7 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 	private void battleEx() {
 
 		System.out.println("");//////////////////////////////////////////
-		System.out.println("battle() します");//////////////////////////////
+		System.out.println("battleEx() します");//////////////////////////////
 		System.out.println("");//////////////////////////////////////////
 
 		buttonName = null;
@@ -2471,13 +2613,6 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		change();
 	}
 
-	private void toNormal() {
-		setMode(1);/////////////////////////////////////通常モードへ
-		Main.save();
-		setMessage("どうしますか?");
-		field();
-	}
-
 	private void printMode() {
 
 		System.out.println("");//////////////////////////////////////////
@@ -2640,6 +2775,112 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 	}
 
+	private int[][] getOriginalMap() {
+		int[][] originalMap = {
+				{4,2,2,3,1,0,1,2,3,1,2,3,1,0,3},
+				{1,1,2,3,1,0,1,2,3,1,3,1,0,1,2},
+				{2,0,0,0,1,0,1,2,3,1,2,3,1,0,1},
+				{2,3,1,0,1,0,1,2,3,1,1,2,3,1,2},
+				{2,3,1,0,1,0,1,2,3,1,2,3,1,0,1},
+				{2,3,1,0,1,0,1,2,3,1,1,2,3,1,2},
+				{2,3,1,0,1,0,1,1,3,1,3,1,0,1,0},
+				{2,3,1,0,1,0,0,0,0,0,0,3,3,3,1},
+				{1,2,3,1,0,0,1,2,3,1,1,2,3,1,2},
+				{1,2,3,1,0,0,1,2,3,1,1,2,3,1,2},
+				{1,2,3,1,0,0,1,2,3,1,2,3,1,0,1},
+				{1,2,3,1,0,0,1,2,3,1,0,1,3,1,2},
+				{0,1,2,2,3,1,0,0,1,2,3,1,1,1,0},
+				{0,1,2,2,3,1,0,0,1,2,2,3,1,9,1},
+				{3,0,3,1,2,1,0,0,1,2,3,1,0,1,3}
+		};
+
+//		int[][] originalMap = {
+//				{4,3,3,3,3,3,3,3,3,3,3,3,3,3,3},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,9,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+//				{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+//		};
+
+		return originalMap;
+	}
+
+	private JPanel map2D() {
+
+		originalMap = getOriginalMap();
+
+		int[][] map = new int[originalMap.length][originalMap[0].length];
+
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[i].length; j++) {
+				int row = i + y;
+				if (map.length <= row) row -= map.length;
+				int column = j + x;
+				if (map[0].length <= column) column -= map[0].length;
+				map[i][j] = originalMap[row][column];
+			}
+		}
+
+
+		mapData = new MapPiece[map.length][map[0].length];
+		drawMap = new JLabel[map.length][map[0].length];
+		mapPanel = new JPanel();
+		format(mapPanel);
+//		mapPanel.setPreferredSize(new Dimension(890, 200));
+		mapPanel.setLayout(new BoxLayout(mapPanel, BoxLayout.Y_AXIS));
+
+		for (int i = 0; i < map.length; i++) {
+			JPanel row = new JPanel();
+			row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+			for (int j = 0; j < map[i].length; j++) {
+				mapData[i][j] = mapPiece(map[i][j]);
+				String mapImage = mapData[i][j].getImage();
+				ImageIcon icon = new ImageIcon("image_map/" + mapImage + ".png");
+				drawMap[i][j] = new JLabel(icon);
+				if(i == map.length / 2 && j == map[0].length /2) {
+					row.add(mapCenter(drawMap[i][j]));
+				} else {
+					row.add(drawMap[i][j]);
+				}
+			}
+			mapPanel.add(row);
+		}
+
+		frame.setFocusable(true);
+
+		return mapPanel;
+
+	}
+
+	private JPanel mapCenter(JLabel centerPiecelabel) {
+
+		String centerImage = "勇者";
+
+		centerIcon = new ImageIcon("image_map/" + centerImage + ".png");
+		centerLabel = new JLabel(centerIcon);
+
+		JPanel panel = new JPanel();
+		OverlayLayout layout=new OverlayLayout(panel);
+		panel.setLayout(layout);
+
+		panel.add(centerLabel);
+		panel.add(centerPiecelabel);
+
+		return panel;
+
+	}
+
+
 	private JPanel setBackPanel(String backURL) {
 
 		ImageIcon iconBack = new ImageIcon(backURL);
@@ -2685,7 +2926,7 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 				break;
 
 			case 5 :
-				drawMonster = "ボス";
+				drawMonster = "竜王";
 				break;
 
 			default :
@@ -2750,6 +2991,44 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		}
 
 		return drawItem + ".png";
+	}
+
+	private MapPiece mapPiece(int number) {
+
+		MapPiece mapPiece = null;
+
+		switch (number) {
+			case 0 :
+				mapPiece = new MapPiece("砂", 1);
+				break;
+
+			case 1 :
+				mapPiece = new MapPiece("草", 2);
+				break;
+
+			case 2 :
+				mapPiece = new MapPiece("山", 0);
+				break;
+
+			case 3 :
+				mapPiece = new MapPiece("海", 0);
+				break;
+
+			case 4 :
+				mapPiece = new MapPiece("洞窟", 4);
+				break;
+
+			case 9 :
+				mapPiece = new MapPiece("城", 9);
+				break;
+
+			default :
+				mapPiece = new MapPiece("砂", 1);
+				break;
+		}
+
+//		return "/RPGDQ/image_map/" + drawMap + ".png";
+		return mapPiece;
 	}
 
 	void prologue() {
@@ -2872,32 +3151,38 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		LineBorder b = new LineBorder(getForeground(), 2, true);
 		panel.setBorder(b);
 
-		JButton[] button = new JButton[bI];
-
-		String[] bList = { ent };
-
 		System.out.println("");//////////////////////////////////////////
-		System.out.println("bList[0] = " + bList[0]);////////////////////////////
+		System.out.println("ent = " + ent);////////////////////////////
 		System.out.println("");//////////////////////////////////////////
 
-		for (int i = 0; i < bI; i++) {
-			String bN = (String) bList[i];
-			button[i] = new JButton(bN);
-			format(button[i]);
-			// button[i].setSize(100, 50);
-			button[i].setFocusPainted(false);
-			button[i].addActionListener(this);
-			button[i].addKeyListener(this);
-			panel.add(button[i]);
-		}
+
+			button_Ent = new JButton(ent);
+			format(button_Ent);
+			// button_Ent.setSize(100, 50);
+			button_Ent.setFocusPainted(false);
+			button_Ent.addActionListener(this);
+			button_Ent.addKeyListener(this);
+
+			panel.add(button_Ent);
+
 		return panel;
 	}
 
 	private void scene() {
 
-		setBackPanel("フィールド.png");
+		switch(mode) {
+			case 1:
+			case 10:
+				setBackPanel("フィールド.png");
+				eventPanel = map2D();
+				break;
+			default:
+				setBackPanel("フィールド.png");
+				setEventImage(eventImage());
+				break;
+		}
 
-		setEventPanel(eventImage());
+
 
 		JPanel fieldPanel = new JPanel();
 		format(fieldPanel);
@@ -2924,7 +3209,7 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 	}
 
 	private String eventImage() {
-		// TODO 自動生成されたメソッド・スタブ
+
 		String fileName = "";
 
 		imageCode = mode;
@@ -2983,9 +3268,9 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 		if (i * 10000 <= mode && mode < (i + 1) * 10000) imageCode = i;
 	}
 
-	private JPanel setEventPanel(String eventURL) {
+	private JPanel setEventImage(String imageFileName) {
 
-		ImageIcon eventIcon = new ImageIcon(eventURL);
+		ImageIcon eventIcon = new ImageIcon(imageFileName);
 		JLabel label = new JLabel(eventIcon);
 
 		eventPanel = new JPanel();
@@ -3043,28 +3328,243 @@ public class Screen extends JFrame implements ActionListener, KeyListener {
 
 	}
 
-	public void keyTyped(KeyEvent e) {
-		// clickButton(String.valueOf(e.getKeyChar()));
+	public void keyTyped(KeyEvent keyEvent) {
+
 	}
 
-	public void keyPressed(KeyEvent e) {
-		// if (e.getKeyCode() == KeyEvent.VK_ENTER )
-		// Money.getMon().job(Money.menu[ 0 ]);
-		// if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
-		// Money.getMon().job(Money.menu[ 1 ]);
-		// if (e.getKeyCode() == KeyEvent.VK_DELETE )
-		// Money.getMon().job(Money.menu[ 2 ]);
-		// if (e.getKeyCode() == KeyEvent.VK_ESCAPE )
-		// Money.getMon().job(Money.menu[ 3 ]);
-		// if (e.getKeyCode() == KeyEvent.VK_SPACE )
-		// Money.getMon().job(Money.menu[ 4 ]);
+	public void keyPressed(KeyEvent keyEvent) {
 
-		// blank = Money.getMon().data.length;
-		// table.setRowSelectionInterval(0, blank-1);
-		// table.setRowSelectionInterval(blank, blank);
+		int pressedKey = keyEvent.getKeyCode();
+
+		String keyName = KeyEvent.getKeyText(pressedKey);
+
+
+
+		 System.out.println("");//////////////////////////////////////////
+		 System.out.println("buttonName = " + buttonName);/////////////////
+		 System.out.println("");//////////////////////////////////////////
+
+		 System.out.println("");//////////////////////////////////////////
+		 System.out.println("pressedKey1 = " + pressedKey);/////////////////
+		 System.out.println("");//////////////////////////////////////////
+
+		 System.out.println("");//////////////////////////////////////////
+		 System.out.println("keyEvent = " + keyEvent);/////////////////
+		 System.out.println("");//////////////////////////////////////////
+
+		if (mode == 1) {
+
+			int moveX = 0;
+			int moveY = 0;
+
+			switch(pressedKey) {
+
+				case KeyEvent.VK_KP_UP:
+				case KeyEvent.VK_UP:
+				case KeyEvent.VK_8:
+				case KeyEvent.VK_5:
+					System.out.println("上が押されました");
+					 moveY--;
+					 moveMap(moveX, moveY);
+					break;
+
+				case KeyEvent.VK_KP_DOWN:
+				case KeyEvent.VK_DOWN:
+				case KeyEvent.VK_2:
+				case KeyEvent.VK_0:
+					System.out.println("下が押されました");
+					moveY++;
+					moveMap(moveX, moveY);
+					break;
+
+				case KeyEvent.VK_KP_LEFT:
+				case KeyEvent.VK_LEFT:
+				case KeyEvent.VK_4:
+					System.out.println("左が押されました");
+					moveX--;
+					moveMap(moveX, moveY);
+					break;
+
+				case KeyEvent.VK_KP_RIGHT:
+				case KeyEvent.VK_RIGHT:
+				case KeyEvent.VK_6:
+					System.out.println("右が押されました");
+					moveX++;
+					moveMap(moveX, moveY);
+					break;
+
+				default:
+					System.out.println(keyName + "KEYが押されました(mode = 1)");
+//					メニューを表示する
+					buttonName = Command.menu()[1];
+					fieldAction(buttonName);
+					break;
+			}
+
+		}else {
+
+			switch(pressedKey) {
+
+				case KeyEvent.VK_ENTER:
+				case KeyEvent.VK_SPACE:
+				case KeyEvent.VK_1:
+
+					System.out.println("");//////////////////////////////////////////
+					System.out.println(keyName + "KEYが押されました");////////////
+					System.out.println("");//////////////////////////////////////////
+
+					System.out.println("");//////////////////////////////////////////
+					System.out.println(ent + "ボタンをクリックします");////////////
+					System.out.println("");//////////////////////////////////////////
+
+//					buttonName = null;
+
+					if(entMark.equals(ent)) {
+						button_Ent.doClick();
+					} else {
+						menuButton[menuNum].doClick();
+					}
+
+//					buttonName = null;
+
+
+					System.out.println("");//////////////////////////////////////////
+					System.out.println("buttonName = " + buttonName);////////////////
+					System.out.println("");//////////////////////////////////////////
+
+					break;
+
+				case KeyEvent.VK_KP_UP:
+				case KeyEvent.VK_UP:
+				case KeyEvent.VK_8:
+				case KeyEvent.VK_5:
+					System.out.println("上が押されました");
+					menuNum --;
+					selectStyle();
+					break;
+
+				case KeyEvent.VK_KP_DOWN:
+				case KeyEvent.VK_DOWN:
+				case KeyEvent.VK_2:
+				case KeyEvent.VK_0:
+					System.out.println("下が押されました");
+					menuNum ++;
+					selectStyle();
+					break;
+
+				default:
+					System.out.println(pressedKey + "が押されました");
+					break;
+			}
+		}
+		keyPressed(null);
+
+
+////		間を開ける
+//		try {
+//			Thread.sleep(200);
+//
+//		} catch (InterruptedException e) {
+//			// TODO 自動生成された catch ブロック
+//			e.printStackTrace();
+//		}
+
 	}
 
-	public void keyReleased(KeyEvent e) {
+
+	private void selectStyle() {
+		if (menuNum < 0) menuNum += menuButton.length;
+		if (menuButton.length <= menuNum) menuNum -= menuButton.length;
+		for (JButton jButton : menuButton) {
+			format(jButton);
+		}
+		menuButton[menuNum].setForeground(Color.BLACK);
+		menuButton[menuNum].setBackground(Color.WHITE);
+	}
+
+	private void moveMap(int moveX, int moveY) {
+
+//		移動先が障害物でなければ移動する
+		if(isBarrier(moveX, moveY) == false) {
+			x += moveX;
+			y += moveY;
+
+//			はみ出し修正
+			x = inRange(originalMap[0].length, x);
+			y = inRange(originalMap.length, y);
+
+			System.out.println("縦" + y + "横" + x);
+
+//			移動先でイベント発動
+
+			buttonName = Command.menu()[0];
+
+			fieldAction(buttonName);
+
+//			count = 0;
+
+			actionPerformedSwitch();
+
+
+			button_Ent.doClick();
+
+			buttonName = null;
+		} else {
+			System.out.println("");////////////////////////////////////////
+			System.out.println("そちらへは移動できません");////////////////
+			System.out.println("");////////////////////////////////////////
+		}
+	}
+
+	private int inRange(int range, int num) {
+		int newNum = num;
+		if (range <= num) newNum -= range;
+		if (num < 0) newNum += range;
+		return newNum;
+	}
+
+	private boolean isBarrier(int moveX, int moveY) {
+		int[] mapCenter = centerXY(originalMap);
+		int nextX = mapCenter[0] + moveX;
+		int nextY = mapCenter[1] + moveY;
+		boolean barrier = false;
+		if (mapData[nextY][nextX].getRole() < 1 ) {
+			barrier = true;
+		}
+		return barrier;
+	}
+
+	private int[] centerXY(int[][] baseArray) {
+		int[] centerXY = {baseArray[0].length / 2, baseArray.length / 2};
+		return centerXY;
+	}
+
+	public void keyReleased(KeyEvent keyEvent) {
+
+//		int pressedKey = keyEvent.getKeyCode();
+//
+//		switch(pressedKey) {
+//
+//			case KeyEvent.VK_ENTER:
+//			case KeyEvent.VK_SPACE:
+//			case KeyEvent.VK_1:
+//
+//				buttonName = ent;
+//				System.out.println("");//////////////////////////////////////////
+//				System.out.println(ent + "KEYが離されました");////////////
+//				System.out.println("");//////////////////////////////////////////
+//
+//				buttonName = null;
+//
+//				System.out.println("");//////////////////////////////////////////
+//				System.out.println("buttonName = " + buttonName);////////////////
+//				System.out.println("");//////////////////////////////////////////
+//
+//				break;
+//
+//			default:
+//				break;
+//		}
 	}
 
 	private void clickButton(String s) {// /////////////
